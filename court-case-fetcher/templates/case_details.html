@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details - Court Case Fetcher</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .case-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .case-info h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-item h3 i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .info-item p {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .orders-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .orders-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .order-title {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .order-date {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .order-type {
+            background: #28a745;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .order-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .no-orders i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .case-number-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .case-number-display h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .case-number-display p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .status-badge.pending {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-badge.disposed {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-gavel"></i> Case Details</h1>
+            <p>Delhi High Court Case Information</p>
+        </div>
+
+        <div class="content">
+            <a href="{{ url_for('index') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Search
+            </a>
+
+            <!-- Case Number Display -->
+            <div class="case-number-display">
+                <h3>{{ case.case_number }}</h3>
+                <p>Delhi High Court</p>
+                <span class="status-badge {{ case.status.lower() if case.status else 'pending' }}">
+                    {{ case.status or 'Pending' }}
+                </span>
+            </div>
+
+            <!-- Case Information -->
+            <div class="case-info">
+                <h2><i class="fas fa-info-circle"></i> Case Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h3><i class="fas fa-file-alt"></i> Case Type</h3>
+                        <p>{{ case.case_type }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3><i class="fas fa-calendar"></i> Filing Year</h3>
+                        <p>{{ case.filing_year }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3><i class="fas fa-user"></i> Petitioner</h3>
+                        <p>{{ case.petitioner or 'Not Available' }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3><i class="fas fa-user-tie"></i> Respondent</h3>
+                        <p>{{ case.respondent or 'Not Available' }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3><i class="fas fa-calendar-plus"></i> Filing Date</h3>
+                        <p>{{ case.filing_year or 'Not Available' }}</p>
+                    </div>
+                    <div class="info-item">
+                        <h3><i class="fas fa-calendar-check"></i> Next Hearing</h3>
+                        <p>{{ case.next_date or 'Not Available' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="orders-section">
+                <h2><i class="fas fa-file-pdf"></i> Orders & Judgments</h2>
+                
+                {% if orders %}
+                    {% for order in orders %}
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-title">Order</div>
+                                    <span class="order-type">Judgment</span>
+                                </div>
+                                <div class="order-date">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ order.order_date }}
+                                </div>
+                            </div>
+                            
+                            <div class="order-actions">
+                                {% if order.pdf_url %}
+                                    <a href="{{ order.pdf_url }}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        View PDF
+                                    </a>
+                                    <a href="{{ order.pdf_url }}" download class="btn btn-success">
+                                        <i class="fas fa-download"></i>
+                                        Download PDF
+                                    </a>
+                                {% endif %}
+                                <a href="#" class="btn btn-info" onclick="showOrderDetails('{{ order.id }}')">
+                                    <i class="fas fa-info-circle"></i>
+                                    Order Details
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-orders">
+                        <i class="fas fa-file-pdf"></i>
+                        <h3>No Orders Available</h3>
+                        <p>This case doesn't have any orders or judgments available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Additional Actions -->
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{ url_for('recent_searches') }}" class="btn btn-info">
+                    <i class="fas fa-history"></i>
+                    View Search History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showOrderDetails(orderId) {
+            // This function can be expanded to show more order details
+            alert('Order ID: ' + orderId + '\nThis feature can be expanded to show detailed order information.');
+        }
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

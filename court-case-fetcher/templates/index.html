@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Court Case Fetcher - Delhi High Court</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .search-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .flash-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info-section {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .info-section h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .info-section p {
+            color: #1976d2;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #764ba2;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-gavel"></i> Court Case Fetcher</h1>
+            <p>Delhi High Court Case Information & Orders</p>
+        </div>
+
+        <div class="content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="search-form">
+                <h2 style="margin-bottom: 25px; color: #2c3e50; text-align: center;">
+                    <i class="fas fa-search"></i> Search Case Information
+                </h2>
+
+                <form method="POST" action="{{ url_for('search_case') }}" id="searchForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="case_type">
+                                <i class="fas fa-file-alt"></i> Case Type
+                            </label>
+                            <select name="case_type" id="case_type" required>
+                                <option value="">Select Case Type</option>
+                                <option value="WP(C)">WP(C) - Writ Petition (Civil)</option>
+                                <option value="WP(CRL)">WP(CRL) - Writ Petition (Criminal)</option>
+                                <option value="LPA">LPA - Letters Patent Appeal</option>
+                                <option value="CRL.A">CRL.A - Criminal Appeal</option>
+                                <option value="CIVIL">CIVIL - Civil Appeal</option>
+                                <option value="COMP">COMP - Company Petition</option>
+                                <option value="ARB">ARB - Arbitration Petition</option>
+                                <option value="TEST">TEST - Testamentary Case</option>
+                                <option value="MAT">MAT - Matrimonial Case</option>
+                                <option value="CONT">CONT - Contempt Petition</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="case_number">
+                                <i class="fas fa-hashtag"></i> Case Number
+                            </label>
+                            <input type="text" name="case_number" id="case_number" 
+                                   placeholder="e.g., 1234" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filing_year">
+                                <i class="fas fa-calendar"></i> Filing Year
+                            </label>
+                            <select name="filing_year" id="filing_year" required>
+                                <option value="">Select Year</option>
+                                {% for year in range(2024, 1999, -1) %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="search-btn" id="searchBtn">
+                        <i class="fas fa-search"></i> Search Case
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Searching for case information...</p>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                <p><strong>1. Search:</strong> Enter the case details to search for case information</p>
+                <p><strong>2. Fetch:</strong> Our system will retrieve case information from the court website</p>
+                <p><strong>3. Display:</strong> View case metadata, parties, dates, and available orders</p>
+                <p><strong>4. Download:</strong> Access PDF files for orders and judgments</p>
+            </div>
+
+            <div class="nav-links">
+                <a href="{{ url_for('recent_searches') }}">
+                    <i class="fas fa-history"></i> Recent Searches
+                </a>
+                <a href="{{ url_for('api_cases') }}">
+                    <i class="fas fa-code"></i> API Endpoint
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function() {
+            document.getElementById('searchBtn').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+        });
+
+        // Auto-fill current year
+        document.getElementById('filing_year').value = new Date().getFullYear();
+    </script>
+</body>
+</html>
